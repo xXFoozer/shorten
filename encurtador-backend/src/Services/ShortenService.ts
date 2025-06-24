@@ -10,6 +10,13 @@ class ShortenService {
         const generateNanoId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 5)
         const customId = shortId === null ? generateNanoId() : shortId;
 
+        if (shortId !== null) {
+            const shortIdExist = await prisma.link.findUnique({ where: { shortId: shortId } })
+            if (shortIdExist) {
+                throw new Error("Short ID já existe...")
+            }
+        }
+
         const link = {
             id: crypto.randomUUID(),
             shortId: customId,
@@ -33,7 +40,8 @@ class ShortenService {
 
     public async generateQrcode({ url }: { url: string }) {
         const base64 = await Qrcode.toDataURL(url)
-        return {base64: base64}
+        return { base64: base64 }
+
     }
 }
 
